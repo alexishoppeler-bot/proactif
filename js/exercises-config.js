@@ -1,6 +1,7 @@
 'use strict';
 
 (function initExerciseConfig() {
+  const nonOrderedPages = ['accueil', 'evaluations', 'regles', 'donnees'];
   const entries = [
     { page: 'accueil', name: 'Accueil', icon: '🏠', cat: 'Navigation' },
     { page: 'cours-protection-donnees', name: 'Cours: Protection des données', icon: '🔒', cat: 'Cours' },
@@ -36,6 +37,7 @@
 
   const meta = {};
   const orderedPages = [];
+  const xpByPage = {};
   for (const e of entries) {
     meta[e.page] = {
       name: e.name,
@@ -43,10 +45,17 @@
       cat: e.cat,
       href: e.page + '.html'
     };
-    if (!['accueil', 'evaluations', 'regles', 'donnees'].includes(e.page)) {
+    if (!nonOrderedPages.includes(e.page)) {
       orderedPages.push(e.page);
+      xpByPage[e.page] = { perCorrect: 1, perAttempt: 0, completionBonus: 3 };
     }
   }
 
-  window.EXERCISE_CONFIG = { meta, orderedPages };
+  window.EXERCISE_CONFIG = {
+    meta,
+    orderedPages,
+    nonOrderedPages,
+    bonusExercises: [],
+    xpRules: { byPage: xpByPage }
+  };
 })();

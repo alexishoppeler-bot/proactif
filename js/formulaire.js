@@ -98,11 +98,11 @@ function profileRows(round) {
     ['Nom', p.name || ''],
     ['Age', p.age ? `${p.age} ans` : ''],
     ['E-mail', p.email || ''],
-    ['Telephone', p.phone || ''],
+    ['Téléphone', p.phone || ''],
     ['Adresse', p.address || ''],
     ['Formation', p.education || ''],
-    ['Experience', p.experience || ''],
-    ['Competences', Array.isArray(p.skills) ? p.skills.join(', ') : '']
+    ['Expérience', p.experience || ''],
+    ['Compétences', Array.isArray(p.skills) ? p.skills.join(', ') : '']
   ].filter(([, value]) => String(value).trim() !== '');
 }
 
@@ -141,9 +141,9 @@ function renderRound() {
   document.getElementById('roundTotal').textContent = String(session.items.length);
   document.getElementById('roundTag').textContent = getRoundTag(round);
   document.getElementById('profileTitle').textContent = `Profil: ${(round.profile && round.profile.name) || 'Candidat'}`;
-  document.getElementById('profileIntro').textContent = 'Lisez les informations puis remplissez le formulaire avec precision.';
+  document.getElementById('profileIntro').textContent = 'Lisez les informations puis remplissez le formulaire avec précision.';
   document.getElementById('formTitle').textContent = 'Formulaire de candidature';
-  document.getElementById('formIntro').textContent = 'Tous les champs doivent correspondre aux donnees du profil.';
+  document.getElementById('formIntro').textContent = 'Tous les champs doivent correspondre aux données du profil.';
 
   const profileList = document.getElementById('profileList');
   const rows = profileRows(round);
@@ -170,7 +170,7 @@ function renderRound() {
     input.type = field.type || 'text';
     input.autocomplete = 'off';
 
-    if (field.name === 'firstName') input.placeholder = names.firstName || 'Prenom';
+    if (field.name === 'firstName') input.placeholder = names.firstName || 'Prénom';
     if (field.name === 'lastName') input.placeholder = names.lastName || 'Nom';
 
     input.addEventListener('input', () => {
@@ -185,7 +185,7 @@ function renderRound() {
   });
 
   const feedback = document.getElementById('formFeedback');
-  feedback.innerHTML = 'Remplissez le formulaire puis cliquez sur Verifier.';
+  feedback.innerHTML = 'Remplissez le formulaire puis cliquez sur Vérifier.';
 
   const btnValidate = document.getElementById('btnValidate');
   btnValidate.disabled = false;
@@ -254,7 +254,7 @@ function validateRound() {
   const feedback = document.getElementById('formFeedback');
   const summary = isRoundCorrect
     ? '<div class="feedback-item success">Formulaire valide. Excellent travail.</div>'
-    : `<div class="feedback-item error">${wrongCount} erreur(s) a corriger sur ce formulaire.</div>`;
+    : `<div class="feedback-item error">${wrongCount} erreur(s) à corriger sur ce formulaire.</div>`;
 
   feedback.innerHTML = summary + messages.join('');
 
@@ -295,7 +295,7 @@ function showHint() {
 
 function nextRound() {
   if (!session.answered) {
-    showToast('Validez d abord le formulaire.', 'info');
+    showToast('Validez d’abord le formulaire.', 'info');
     return;
   }
 
@@ -320,7 +320,7 @@ function finishSession() {
 
   const accuracy = calcAccuracy(session.correct, session.typed);
   document.getElementById('resEmoji').textContent = accuracy >= 80 ? '🏆' : '📝';
-  document.getElementById('resTitle').textContent = accuracy >= 80 ? 'Tres bon travail' : 'Continuez';
+  document.getElementById('resTitle').textContent = accuracy >= 80 ? 'Très bon travail' : 'Continuez';
   document.getElementById('resSubtitle').textContent = `${session.correct} formulaire(s) juste(s) sur ${session.items.length}.`;
 
   document.getElementById('resCorrect').textContent = String(session.correct);

@@ -134,7 +134,7 @@ window.ECOUTER_DATA = [
       { speaker: 'Rosa', gender: 'f', text: 'Ah oui, je vois maintenant.' },
       { speaker: 'Formateur', gender: 'm', text: 'Très bien. Et n’oublie pas la date.' },
       { speaker: 'Rosa', gender: 'f', text: 'Je dois écrire la date d’aujourd’hui ?' },
-      { speaker: 'Formateur', gender: 'm', text: 'Oui, la date d’aujourd’hui, puis ta signature à la fin.' },
+      { speaker: 'Formateur', gender: 'm', text: 'Oui, la date d’aujourd’hui, puis votre signature à la fin.' },
       { speaker: 'Rosa', gender: 'f', text: 'D’accord. Après, je peux donner le document ?' },
       { speaker: 'Formateur', gender: 'm', text: 'Oui, mais relis avant.' },
       { speaker: 'Rosa', gender: 'f', text: 'Très bien, je vais vérifier.' },

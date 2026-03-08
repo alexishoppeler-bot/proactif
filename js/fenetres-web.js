@@ -7,6 +7,7 @@
   const TASKS = Array.isArray(DATA.tasks) ? DATA.tasks : [];
 
   const XP_PER_STEP = 3;
+  const SHORTCUTS_HELP = 'Raccourcis: B Chrome, E Messagerie, M réduire, X agrandir, R restaurer, Échap fermer, 1-3 onglets, ? ou / aide.';
 
   const session = {
     index: 0,
@@ -14,6 +15,7 @@
     errors: 0,
     xp: 0,
     typed: 0,
+    stepErrors: {},
     currentState: null,
     finished: false
   };
@@ -30,13 +32,16 @@
   }
 
   function cloneState(state) {
+    const open = Array.isArray(state.open) ? [...state.open] : [];
+    const minimized = Array.isArray(state.minimized) ? [...state.minimized] : [];
+    const topVisible = [...open].reverse().find((id) => !minimized.includes(id)) || null;
     return {
-      open: Array.isArray(state.open) ? [...state.open] : [],
-      minimized: Array.isArray(state.minimized) ? [...state.minimized] : [],
+      open,
+      minimized,
       maximized: Array.isArray(state.maximized) ? [...state.maximized] : [],
       activeTab: state.activeTab || '',
       adOpen: !!state.adOpen,
-      activeWindow: Array.isArray(state.open) && state.open.length ? state.open[0] : null
+      activeWindow: topVisible
     };
   }
 
@@ -50,6 +55,10 @@
 
   function isMaximized(id) {
     return session.currentState.maximized.includes(id);
+  }
+
+  function canInteractWithWindow(id) {
+    return isOpen(id) && !isMinimized(id);
   }
 
   function setFeedback(text, type) {
@@ -72,10 +81,10 @@
     const task = TASKS[session.index];
 
     if (dom.instruction) {
-      dom.instruction.textContent = task ? task.instruction : 'Session terminee.';
+      dom.instruction.textContent = task ? task.instruction : 'Session terminée.';
     }
     if (dom.progress) {
-      dom.progress.textContent = `Etape ${stepNum} / ${total}`;
+      dom.progress.textContent = `Étape ${stepNum} / ${total}`;
     }
   }
 
@@ -95,6 +104,11 @@
     open.push(id);
   }
 
+  function getTopVisibleWindow(excludeId) {
+    const open = session.currentState.open;
+    return [...open].reverse().find((wid) => wid !== excludeId && !isMinimized(wid)) || null;
+  }
+
   function applyActionToState(action) {
     const state = session.currentState;
     const id = action.target;
@@ -111,7 +125,7 @@
       removeValue(state.open, id);
       removeValue(state.minimized, id);
       removeValue(state.maximized, id);
-      if (state.activeWindow === id) state.activeWindow = state.open.length ? state.open[state.open.length - 1] : null;
+      if (state.activeWindow === id) state.activeWindow = getTopVisibleWindow();
       if (id === 'ad') state.adOpen = false;
       return;
     }
@@ -128,7 +142,7 @@
       if (!isOpen(id)) return;
       addUnique(state.minimized, id);
       removeValue(state.maximized, id);
-      if (state.activeWindow === id) state.activeWindow = state.open.find((wid) => wid !== id) || null;
+      if (state.activeWindow === id) state.activeWindow = getTopVisibleWindow(id);
       return;
     }
 
@@ -141,14 +155,14 @@
     }
 
     if (action.type === 'switch-tab') {
-      if (!isOpen(id) || isMinimized(id)) return;
+      if (!canInteractWithWindow(id)) return;
       state.activeTab = action.value || state.activeTab;
       focusWindow(id);
       return;
     }
 
     if (action.type === 'focus') {
-      if (!isOpen(id) || isMinimized(id)) return;
+      if (!canInteractWithWindow(id)) return;
       focusWindow(id);
     }
   }
@@ -178,9 +192,102 @@
   function expectedHint(task) {
     if (!task || !task.expected) return '';
     const exp = task.expected;
-    if (exp.type === 'switch-tab') return `Action attendue: ouvrir l onglet ${exp.value}.`;
-    if (exp.type === 'close-ad') return 'Action attendue: fermer la fenetre publicitaire.';
-    return `Action attendue: ${exp.type} sur ${exp.target}.`;
+    const meta = WINDOWS[exp.target] || {};
+    const title = meta.title || exp.target;
+
+    if (exp.type === 'switch-tab') return `Action attendue: cliquer sur l'onglet ${exp.value}.`;
+    if (exp.type === 'close-ad') return 'Action attendue: fermer la fenêtre publicitaire.';
+    if (exp.type === 'open') return `Action attendue: ouvrir ${title}.`;
+    if (exp.type === 'close') return `Action attendue: fermer ${title}.`;
+    if (exp.type === 'maximize') return `Action attendue: agrandir ${title}.`;
+    if (exp.type === 'minimize') return `Action attendue: réduire ${title}.`;
+    if (exp.type === 'restore') return `Action attendue: restaurer ${title}.`;
+    if (exp.type === 'focus') return `Action attendue: mettre ${title} au premier plan.`;
+    return 'Action attendue: exécuter la commande demandée.';
+  }
+
+  function windowTitle(id) {
+    const meta = WINDOWS[id] || {};
+    return meta.title || id;
+  }
+
+  function smartHint(task, action, errorCount) {
+    if (!task || !task.expected) return expectedHint(task);
+    const exp = task.expected;
+    const target = exp.target;
+    const title = windowTitle(target);
+
+    if (errorCount <= 1) {
+      return expectedHint(task);
+    }
+
+    if (exp.type === 'open') {
+      if (isOpen(target) && isMinimized(target)) {
+        return `${expectedHint(task)} Indice: ${title} est déjà ouverte mais réduite, restaurez-la depuis la barre des tâches.`;
+      }
+      if (isOpen(target) && !isMinimized(target)) {
+        return `${expectedHint(task)} Indice: ${title} est déjà visible, mettez-la au premier plan.`;
+      }
+      return `${expectedHint(task)} Indice: utilisez le lanceur en haut ou le raccourci clavier associé.`;
+    }
+
+    if (exp.type === 'close' || exp.type === 'close-ad') {
+      if (!isOpen(target)) {
+        return `${expectedHint(task)} Indice: ${title} n'est pas ouverte dans cet état.`;
+      }
+      if (isMinimized(target)) {
+        return `${expectedHint(task)} Indice: restaurez d'abord ${title}, puis utilisez Fermer (✕).`;
+      }
+      return `${expectedHint(task)} Indice: activez ${title}, puis cliquez sur Fermer (✕).`;
+    }
+
+    if (exp.type === 'maximize') {
+      if (!isOpen(target)) return `${expectedHint(task)} Indice: ouvrez d'abord ${title}.`;
+      if (isMinimized(target)) return `${expectedHint(task)} Indice: restaurez ${title} avant de l'agrandir.`;
+      if (isMaximized(target)) return `${expectedHint(task)} Indice: ${title} est déjà agrandie.`;
+      return `${expectedHint(task)} Indice: cliquez sur le bouton Agrandir (□).`;
+    }
+
+    if (exp.type === 'minimize') {
+      if (!isOpen(target)) return `${expectedHint(task)} Indice: ouvrez d'abord ${title}.`;
+      if (isMinimized(target)) return `${expectedHint(task)} Indice: ${title} est déjà réduite.`;
+      return `${expectedHint(task)} Indice: cliquez sur le bouton Réduire (–).`;
+    }
+
+    if (exp.type === 'restore') {
+      if (!isOpen(target)) return `${expectedHint(task)} Indice: ouvrez d'abord ${title}.`;
+      if (!isMinimized(target)) return `${expectedHint(task)} Indice: ${title} n'est pas réduite; passez par la barre des tâches si besoin.`;
+      return `${expectedHint(task)} Indice: cliquez sur ${title} dans la barre des tâches pour la restaurer.`;
+    }
+
+    if (exp.type === 'focus') {
+      if (!isOpen(target)) return `${expectedHint(task)} Indice: ouvrez d'abord ${title}.`;
+      if (isMinimized(target)) return `${expectedHint(task)} Indice: restaurez ${title} avant de la mettre au premier plan.`;
+      if (session.currentState.activeWindow === target) {
+        return `${expectedHint(task)} Indice: ${title} est déjà active.`;
+      }
+      return `${expectedHint(task)} Indice: cliquez dans la fenêtre ou sur sa barre de titre.`;
+    }
+
+    if (exp.type === 'switch-tab') {
+      if (!isOpen(target)) return `${expectedHint(task)} Indice: ouvrez d'abord ${title}.`;
+      if (isMinimized(target)) return `${expectedHint(task)} Indice: restaurez ${title} avant de changer d'onglet.`;
+      const tabName = exp.value || '';
+      const tabShortcut = ['1', '2', '3'].find((k, idx) => {
+        const tabs = (WINDOWS[target] && Array.isArray(WINDOWS[target].tabs)) ? WINDOWS[target].tabs : [];
+        return normalize(tabs[idx]) === normalize(tabName);
+      });
+      if (tabShortcut) {
+        return `${expectedHint(task)} Indice: cliquez sur l'onglet "${tabName}" ou utilisez la touche ${tabShortcut}.`;
+      }
+      return `${expectedHint(task)} Indice: cliquez directement sur l'onglet "${tabName}".`;
+    }
+
+    if (action && action.target && normalize(action.target) !== normalize(target)) {
+      return `${expectedHint(task)} Indice: vous avez agi sur ${windowTitle(action.target)} au lieu de ${title}.`;
+    }
+
+    return expectedHint(task);
   }
 
   function registerAttempt(isCorrect) {
@@ -204,7 +311,7 @@
       registerAttempt(true);
       session.done += 1;
       session.xp += XP_PER_STEP;
-      setFeedback('Bonne action. Passage a l etape suivante...', 'ok');
+      setFeedback('Bonne action. Passage à l’étape suivante...', 'ok');
       applyActionToState(action);
       updateKPI();
       renderDesktop();
@@ -225,8 +332,9 @@
 
     registerAttempt(false);
     session.errors += 1;
+    session.stepErrors[session.index] = (session.stepErrors[session.index] || 0) + 1;
     updateKPI();
-    setFeedback(`Action incorrecte. ${expectedHint(task)}`, 'error');
+    setFeedback(`Action incorrecte. ${smartHint(task, action, session.stepErrors[session.index])}`, 'error');
     loadTaskState();
     renderDesktop();
   }
@@ -248,6 +356,18 @@
       });
   }
 
+  function bindKeyboardActivation(node, callback) {
+    if (!node || typeof callback !== 'function') return;
+    node.addEventListener('keydown', (event) => {
+      if (event.target !== event.currentTarget) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.repeat) return;
+      if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+      event.preventDefault();
+      callback();
+    });
+  }
+
   function buildWindowElement(id) {
     const meta = WINDOWS[id] || { title: id, icon: '🗔', tabs: [] };
     const win = document.createElement('article');
@@ -258,6 +378,9 @@
 
     const title = document.createElement('div');
     title.className = 'fw-titlebar';
+    title.tabIndex = 0;
+    title.setAttribute('role', 'button');
+    title.setAttribute('aria-label', `Activer la fenêtre ${meta.title || id}`);
 
     const titleText = document.createElement('div');
     titleText.className = 'fw-title';
@@ -269,7 +392,7 @@
     const btnMin = document.createElement('button');
     btnMin.type = 'button';
     btnMin.dataset.action = 'minimize';
-    btnMin.title = 'Reduire';
+    btnMin.title = 'Réduire';
     btnMin.textContent = '–';
     btnMin.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -303,6 +426,7 @@
     title.appendChild(titleText);
     title.appendChild(controls);
     title.addEventListener('click', () => handleAction({ type: 'focus', target: id }));
+    bindKeyboardActivation(title, () => handleAction({ type: 'focus', target: id }));
 
     win.appendChild(title);
 
@@ -329,14 +453,18 @@
 
     const content = document.createElement('div');
     content.className = 'fw-content';
+    content.tabIndex = 0;
+    content.setAttribute('role', 'button');
+    content.setAttribute('aria-label', `Activer le contenu de la fenêtre ${meta.title || id}`);
     if (id === 'browser') {
-      content.textContent = `Contenu affiche: ${session.currentState.activeTab || 'Google'}`;
+      content.textContent = `Contenu affiché: ${session.currentState.activeTab || 'Google'}`;
     } else if (id === 'email') {
-      content.textContent = 'Boite de reception - cliquez pour prendre le focus.';
+      content.textContent = 'Boîte de réception - cliquez pour prendre le focus.';
     } else {
-      content.textContent = 'Popup publicitaire: Cliquez sur fermer.';
+      content.textContent = 'Popup publicitaire: cliquez sur fermer.';
     }
     content.addEventListener('click', () => handleAction({ type: 'focus', target: id }));
+    bindKeyboardActivation(content, () => handleAction({ type: 'focus', target: id }));
 
     win.appendChild(content);
     return win;
@@ -353,7 +481,7 @@
       btn.className = 'fw-task';
 
       const minimized = isMinimized(id);
-      btn.textContent = `${meta.icon || '🗔'} ${meta.title || id}${minimized ? ' (reduite)' : ''}`;
+      btn.textContent = `${meta.icon || '🗔'} ${meta.title || id}${minimized ? ' (réduite)' : ''}`;
       btn.addEventListener('click', () => {
         const type = minimized ? 'restore' : 'focus';
         handleAction({ type, target: id });
@@ -377,6 +505,80 @@
     renderTaskbar();
   }
 
+  function getActiveWindowId() {
+    const id = session.currentState && session.currentState.activeWindow;
+    if (!id) return null;
+    if (!canInteractWithWindow(id)) return null;
+    return id;
+  }
+
+  function isTypingContext(target) {
+    if (!target) return false;
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (target.isContentEditable) return true;
+    return target.getAttribute && target.getAttribute('role') === 'textbox';
+  }
+
+  function handleShortcut(event) {
+    if (session.finished || !session.currentState) return;
+    const target = event.target;
+    const tag = target && target.tagName;
+    if (isTypingContext(target)) return;
+    if (tag === 'BUTTON' || tag === 'A') return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.repeat) return;
+
+    const key = String(event.key || '').toLowerCase();
+    const active = getActiveWindowId();
+    const browserTabs = (WINDOWS.browser && Array.isArray(WINDOWS.browser.tabs)) ? WINDOWS.browser.tabs : [];
+
+    if (key === 'b') {
+      event.preventDefault();
+      handleAction({ type: 'open', target: 'browser' });
+      return;
+    }
+    if (key === 'e') {
+      event.preventDefault();
+      handleAction({ type: 'open', target: 'email' });
+      return;
+    }
+    if (key === 'escape' && active) {
+      event.preventDefault();
+      handleAction({ type: active === 'ad' ? 'close-ad' : 'close', target: active });
+      return;
+    }
+    if (key === 'm' && active) {
+      event.preventDefault();
+      handleAction({ type: 'minimize', target: active });
+      return;
+    }
+    if (key === 'x' && active) {
+      event.preventDefault();
+      handleAction({ type: 'maximize', target: active });
+      return;
+    }
+    if (key === 'r' && active) {
+      event.preventDefault();
+      handleAction({ type: 'restore', target: active });
+      return;
+    }
+    if (key === '?' || key === '/') {
+      event.preventDefault();
+      setFeedback(SHORTCUTS_HELP, 'info');
+      return;
+    }
+
+    if ((key === '1' || key === '2' || key === '3') && canInteractWithWindow('browser')) {
+      const index = Number(key) - 1;
+      const tab = browserTabs[index];
+      if (tab) {
+        event.preventDefault();
+        handleAction({ type: 'switch-tab', target: 'browser', value: tab });
+      }
+    }
+  }
+
   function loadTaskState() {
     const task = TASKS[session.index];
     if (!task) return;
@@ -391,7 +593,7 @@
     }
 
     if (!session.currentState.activeWindow || !session.currentState.open.includes(session.currentState.activeWindow)) {
-      session.currentState.activeWindow = session.currentState.open.length ? session.currentState.open[0] : null;
+      session.currentState.activeWindow = getTopVisibleWindow();
     }
   }
 
@@ -400,24 +602,24 @@
     promoteExerciseStatus(PAGE_ID, 'completed');
 
     const accuracy = calcAccuracy(session.done, session.typed);
-    const title = accuracy >= 80 ? 'Parcours valide' : 'Parcours termine';
+    const title = accuracy >= 80 ? 'Parcours validé' : 'Parcours terminé';
 
     if (dom.result) {
       dom.result.classList.remove('fw-hidden');
       dom.result.innerHTML = [
         `<strong>${title}</strong>`,
-        `${session.done} etape(s) reussie(s) sur ${TASKS.length}.`,
-        `Precision: ${accuracy}% · Erreurs: ${session.errors} · XP: ${session.xp}`
+        `${session.done} étape(s) réussie(s) sur ${TASKS.length}.`,
+        `Précision: ${accuracy}% · Erreurs: ${session.errors} · XP: ${session.xp}`
       ].join('<br>');
     }
 
-    setFeedback('Simulation terminee.', 'ok');
+    setFeedback('Simulation terminée.', 'ok');
     renderDesktop();
   }
 
   function restart() {
     if (!TASKS.length) {
-      setFeedback('Aucune etape disponible.', 'error');
+      setFeedback('Aucune étape disponible.', 'error');
       return;
     }
 
@@ -426,6 +628,7 @@
     session.errors = 0;
     session.xp = 0;
     session.typed = 0;
+    session.stepErrors = {};
     session.finished = false;
 
     if (dom.result) {
@@ -436,7 +639,7 @@
     loadTaskState();
     updateGuide();
     updateKPI();
-    setFeedback('Suivez l instruction puis cliquez sur la bonne commande.', 'info');
+    setFeedback('Suivez l’instruction puis cliquez sur la bonne commande.', 'info');
     renderLaunchers();
     renderDesktop();
   }
@@ -455,6 +658,7 @@
     dom.result = document.getElementById('fw-result');
 
     if (dom.restart) dom.restart.addEventListener('click', restart);
+    document.addEventListener('keydown', handleShortcut);
 
     restart();
   });

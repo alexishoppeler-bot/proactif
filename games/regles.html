@@ -32,7 +32,7 @@
         <div class="alert alert-info mb-24 fade-up delay-1">
           <span>∞</span>
           <div>
-            Tu peux rejouer aux exercices <strong>à l'infini</strong> et <strong>cumuler de l'XP</strong> à chaque session.
+            Vous pouvez rejouer aux exercices <strong>à l'infini</strong> et <strong>cumuler de l'XP</strong> à chaque session.
           </div>
         </div>
 
@@ -67,9 +67,9 @@
       if (!generalBox || !rulesGrid) return;
 
       const defaultGeneral = [
-        'Les bonnes reponses donnent des XP selon les regles de chaque jeu.',
-        'Les mauvaises reponses donnent en general 0 XP.',
-        'Chaque tranche de 100 XP fait progresser ton niveau global.'
+        'Les bonnes réponses donnent des XP selon les règles de chaque jeu.',
+        'Les mauvaises réponses donnent en général 0 XP.',
+        'Chaque tranche de 100 XP fait progresser votre niveau global.'
       ];
       const generalRules = general.length ? general : defaultGeneral;
       generalBox.innerHTML = generalRules.map((line) => `<p>• ${escapeHTML(line)}</p>`).join('');
@@ -92,9 +92,21 @@
 
       rulesGrid.innerHTML = pages.map((page) => {
         const title = (meta[page] && meta[page].name) ? meta[page].name : page;
-        const ruleText = byPage[page] || 'Règle XP non définie dans la configuration.';
+        const rule = byPage[page];
+        const ruleText = formatRule(rule);
         return `<div class="rule-card"><h3>${escapeHTML(title)}</h3><p>${escapeHTML(ruleText)}</p></div>`;
       }).join('');
+
+      function formatRule(rule) {
+        if (!rule) return 'Règle XP non définie dans la configuration.';
+        if (typeof rule === 'string') return rule;
+        if (typeof rule !== 'object') return String(rule);
+
+        const perCorrect = Number(rule.perCorrect) || 0;
+        const perAttempt = Number(rule.perAttempt) || 0;
+        const completionBonus = Number(rule.completionBonus) || 0;
+        return `+${perCorrect} XP par bonne réponse, +${perAttempt} XP par tentative, bonus de fin +${completionBonus} XP.`;
+      }
 
       function escapeHTML(text) {
         return String(text)

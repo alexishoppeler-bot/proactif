@@ -18,7 +18,7 @@
         <div class="page-header fade-up">
           <div class="page-icon">🔒</div>
           <h1>Données &amp; confidentialité</h1>
-          <p>Toutes tes données sont stockées uniquement sur cet appareil. Aucune donnée n'est envoyée sur internet.</p>
+          <p>Toutes vos données sont stockées uniquement sur cet appareil. Aucune donnée n'est envoyée sur internet.</p>
         </div>
         <div class="mb-24 fade-up delay-1 flex gap-8 flex-wrap">
           <a href="accueil.html" class="btn btn-secondary btn-sm">Accueil</a>
@@ -29,7 +29,7 @@
 
         <div class="alert alert-info mb-24 fade-up delay-1">
           <span>ℹ️</span>
-          <div>Ce site fonctionne <strong>entièrement hors ligne</strong>. Tes scores et préférences sont sauvegardés dans le stockage local de ton navigateur sur cet appareil uniquement.</div>
+          <div>Ce site fonctionne <strong>entièrement hors ligne</strong>. Vos scores et préférences sont sauvegardés dans le stockage local de votre navigateur sur cet appareil uniquement.</div>
         </div>
         <div class="card mb-24 fade-up delay-2" id="data-summary-card">
           <div class="card-title">📊 Résumé de mes données</div>
@@ -37,12 +37,12 @@
         </div>
         <div class="card mb-24 fade-up delay-3">
           <div class="card-title">📤 Exporter mes données</div>
-          <p class="card-desc mb-16">Télécharge une copie de toutes tes données en JSON.</p>
+          <p class="card-desc mb-16">Téléchargez une copie de toutes vos données en JSON.</p>
           <button class="btn btn-primary btn-sm" id="btn-export" type="button">⬇️ Télécharger mes données (JSON)</button>
         </div>
         <div class="card mb-24 fade-up delay-3">
           <div class="card-title">📥 Importer mes données</div>
-          <p class="card-desc mb-16">Restaure tes données depuis un fichier JSON exporté auparavant.</p>
+          <p class="card-desc mb-16">Restaurez vos données depuis un fichier JSON exporté auparavant.</p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn btn-primary btn-sm" id="btn-import" type="button">📂 Importer un fichier JSON</button>
             <input type="file" id="import-file" accept=".json,application/json" style="display:none;">
@@ -56,13 +56,35 @@
             <button class="btn btn-danger btn-sm" id="btn-clear-all" type="button">Tout effacer</button>
           </div>
         </div>
+        <div class="card mb-24 fade-up delay-3">
+          <div class="card-title">🤖 Coach intelligent</div>
+          <p class="card-desc mb-16">Réglez la fréquence des indices et bilans de précision pour tous les jeux.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+              <span>Intervalle minimum des toasts (ms)</span>
+              <input id="coach-min-gap" type="number" min="500" step="100" style="padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+              <span>Cadence bilan précision (tentatives)</span>
+              <input id="coach-accuracy-every" type="number" min="2" step="1" style="padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+              <span>Début bilan précision (tentatives)</span>
+              <input id="coach-accuracy-start" type="number" min="1" step="1" style="padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);">
+            </label>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn btn-primary btn-sm" id="btn-coach-save" type="button">Enregistrer les réglages</button>
+            <button class="btn btn-secondary btn-sm" id="btn-coach-reset" type="button">Réinitialiser</button>
+          </div>
+        </div>
         <div class="card fade-up delay-4">
           <div class="card-title">🛡️ Politique de confidentialité</div>
           <div style="font-size:13px;color:var(--text2);line-height:2;margin-top:8px;">
             <p>• <strong>Aucune donnée personnelle</strong> n'est transmise à des tiers.</p>
-            <p>• Les données sont stockées dans le <strong>localStorage</strong> de ton navigateur.</p>
-            <p>• Effacer le cache ou l'historique de ton navigateur supprimera ces données.</p>
-            <p>• En cas de doute, utilise le bouton "Tout effacer" ci-dessus.</p>
+            <p>• Les données sont stockées dans le <strong>localStorage</strong> de votre navigateur.</p>
+            <p>• Effacer le cache ou l'historique de votre navigateur supprimera ces données.</p>
+            <p>• En cas de doute, utilisez le bouton "Tout effacer" ci-dessus.</p>
           </div>
         </div>
       </div>
@@ -99,8 +121,73 @@
       '<div>📈 Scores enregistrés pour <strong>' + pages.length + '</strong> exercice(s).</div>' +
       '<div>🎨 Thème : ' + themeLabel + '</div>';
   }
+
+  const DEFAULT_COACH_OPTIONS = {
+    minToastGapMs: 5000,
+    accuracyToastEveryAttempts: 8,
+    accuracyToastStartAtAttempts: 6
+  };
+
+  function readCoachOptions() {
+    if (typeof window.getExerciseCoachOptions === 'function') {
+      const opts = window.getExerciseCoachOptions();
+      if (opts && typeof opts === 'object') return opts;
+    }
+    return { ...DEFAULT_COACH_OPTIONS };
+  }
+
+  function renderCoachOptions() {
+    const opts = readCoachOptions();
+    const minGap = document.getElementById('coach-min-gap');
+    const every = document.getElementById('coach-accuracy-every');
+    const start = document.getElementById('coach-accuracy-start');
+    if (minGap) minGap.value = String(opts.minToastGapMs || DEFAULT_COACH_OPTIONS.minToastGapMs);
+    if (every) every.value = String(opts.accuracyToastEveryAttempts || DEFAULT_COACH_OPTIONS.accuracyToastEveryAttempts);
+    if (start) start.value = String(opts.accuracyToastStartAtAttempts || DEFAULT_COACH_OPTIONS.accuracyToastStartAtAttempts);
+  }
+
+  function saveCoachOptionsFromForm() {
+    const minGap = Number(document.getElementById('coach-min-gap').value);
+    const every = Number(document.getElementById('coach-accuracy-every').value);
+    const start = Number(document.getElementById('coach-accuracy-start').value);
+    if (!Number.isFinite(minGap) || minGap < 500) {
+      showToast('Intervalle minimum invalide (>= 500 ms).', 'error');
+      return;
+    }
+    if (!Number.isFinite(every) || every < 2) {
+      showToast('Cadence précision invalide (>= 2).', 'error');
+      return;
+    }
+    if (!Number.isFinite(start) || start < 1) {
+      showToast('Début précision invalide (>= 1).', 'error');
+      return;
+    }
+    if (typeof window.setExerciseCoachOptions === 'function') {
+      window.setExerciseCoachOptions({
+        minToastGapMs: Math.round(minGap),
+        accuracyToastEveryAttempts: Math.round(every),
+        accuracyToastStartAtAttempts: Math.round(start)
+      });
+      showToast('Réglages du coach enregistrés.', 'success');
+      renderCoachOptions();
+      return;
+    }
+    showToast('Coach indisponible sur cette page.', 'error');
+  }
+
+  function resetCoachOptions() {
+    if (typeof window.setExerciseCoachOptions !== 'function') {
+      showToast('Coach indisponible sur cette page.', 'error');
+      return;
+    }
+    window.setExerciseCoachOptions({ ...DEFAULT_COACH_OPTIONS });
+    renderCoachOptions();
+    showToast('Réglages du coach réinitialisés.', 'info');
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderDataSummary();
+    renderCoachOptions();
     const importBtn = document.getElementById('btn-import');
     const importFileInput = document.getElementById('import-file');
 
@@ -111,13 +198,16 @@
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        const importedScores = parsed && typeof parsed === 'object' && parsed.scores && typeof parsed.scores === 'object' ? parsed.scores : null;
-        if (!importedScores) {
-          showToast('Fichier JSON invalide: "scores" manquant.', 'error');
+        const importedStore = (parsed && typeof parsed === 'object') ? parsed : null;
+        if (!importedStore || (!importedStore.scores && !importedStore.sessions)) {
+          showToast('Fichier JSON invalide: données manquantes.', 'error');
           return;
         }
 
-        if (!safeStorageSet('formation_scores', JSON.stringify(importedScores))) {
+        const imported = (typeof ScoreManager !== 'undefined' && typeof ScoreManager.importStore === 'function')
+          ? ScoreManager.importStore(importedStore)
+          : false;
+        if (!imported) {
           showToast('Stockage local indisponible: import impossible.', 'error');
           return;
         }
@@ -137,7 +227,10 @@
     });
     document.getElementById('btn-export').addEventListener('click', () => {
       const theme = safeStorageGet('theme') || 'light';
-      const data = { scores: ScoreManager.getAllData(), theme, exportedAt: new Date().toISOString() };
+      const store = (typeof ScoreManager !== 'undefined' && typeof ScoreManager.exportStore === 'function')
+        ? ScoreManager.exportStore()
+        : { scores: ScoreManager.getAllData(), sessions: [] };
+      const data = { ...store, theme, exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
@@ -154,6 +247,8 @@
       renderDataSummary();
       showToast('Toutes les données effacées.', 'info');
     });
+    document.getElementById('btn-coach-save').addEventListener('click', saveCoachOptionsFromForm);
+    document.getElementById('btn-coach-reset').addEventListener('click', resetCoachOptions);
   });
   </script>
 </body>

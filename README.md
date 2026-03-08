@@ -1,98 +1,39 @@
-﻿<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Quiz – Transports publics suisses</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    padding: 20px;
-}
+# Formulaire - Plateforme d'exercices
 
-.quiz-container {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: auto;
-}
+Projet web statique pour entraîner des compétences numériques et linguistiques (navigation, e-mails, formulaires, jeux pédagogiques) avec suivi de progression local.
 
-h1 {
-    text-align: center;
-}
+## Structure
 
-.question {
-    margin-bottom: 20px;
-}
+- `index.html` : redirection vers l'accueil
+- `games/` : pages des exercices et cours
+- `js/` : logique applicative, données des exercices, score, UI
+- `css/` : thème, layout, composants et styles par page
+- `admin/revision-complete.mjs` : script de vérification globale
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
+## Démarrage rapide
 
-.result {
-    margin-top: 20px;
-    font-weight: bold;
-}
-</style>
-</head>
-<body>
+1. Ouvrir `index.html` (ou `games/accueil.html`) dans le navigateur.
+2. Lancer les exercices depuis l'accueil.
+3. Consulter la progression et les résultats sur `games/evaluations.html`.
 
-<div class="quiz-container">
-<h1>Quiz – Transports publics suisses 🚆</h1>
+## Vérification cohérence
 
-<div class="question">
-<p>1. Que signifie CFF ?</p>
-<label><input type="radio" name="q1" value="0"> Compagnie Ferroviaire Française</label><br>
-<label><input type="radio" name="q1" value="1"> Chemins de fer fédéraux suisses</label><br>
-<label><input type="radio" name="q1" value="0"> Centrale des trains fédéraux</label>
-</div>
+Exécuter :
 
-<div class="question">
-<p>2. Quel abonnement permet de voyager librement dans presque toute la Suisse ?</p>
-<label><input type="radio" name="q2" value="1"> L’abonnement général (AG)</label><br>
-<label><input type="radio" name="q2" value="0"> L’abonnement simple</label><br>
-<label><input type="radio" name="q2" value="0"> Le billet journalier local</label>
-</div>
+```bash
+node admin/revision-complete.mjs
+```
 
-<div class="question">
-<p>3. Quel est le réseau de métro automatique de Lausanne ?</p>
-<label><input type="radio" name="q3" value="0"> M1</label><br>
-<label><input type="radio" name="q3" value="1"> M2</label><br>
-<label><input type="radio" name="q3" value="0"> M3</label>
-</div>
+Le script contrôle notamment :
 
-<div class="question">
-<p>4. Quel train rapide suisse relie les grandes villes ?</p>
-<label><input type="radio" name="q4" value="1"> InterCity</label><br>
-<label><input type="radio" name="q4" value="0"> TramExpress</label><br>
-<label><input type="radio" name="q4" value="0"> MetroFast</label>
-</div>
+- cohérence de `js/exercises-config.js`
+- existence des références HTML (`src` / `href`)
+- syntaxe JavaScript
+- artefacts d'encodage
+- fichiers parasites
 
-<button onclick="checkQuiz()">Voir le résultat</button>
+## Documentation complémentaire
 
-<div class="result" id="result"></div>
-</div>
-
-<script>
-function checkQuiz() {
-    let score = 0;
-
-    let answers = ["q1","q2","q3","q4"];
-
-    answers.forEach(q => {
-        let selected = document.querySelector('input[name="'+q+'"]:checked');
-        if(selected){
-            score += parseInt(selected.value);
-        }
-    });
-
-    document.getElementById("result").textContent =
-        "Ton score est : " + score + " / 4";
-}
-</script>
-
-</body>
-</html>
+- `QUICK_START.md`
+- `VOTE_SYSTEM.md`
+- `DEMO_VOTES.md`

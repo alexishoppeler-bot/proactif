@@ -224,6 +224,25 @@
       return { totalLikes, totalDislikes };
     },
 
+    exportStore() {
+      const store = readStore();
+      return {
+        scores: store.scores,
+        sessions: store.sessions
+      };
+    },
+
+    importStore(data) {
+      if (!data || typeof data !== 'object') return false;
+      const payload = {
+        scores: (data.scores && typeof data.scores === 'object') ? data.scores : {},
+        sessions: Array.isArray(data.sessions) ? data.sessions : []
+      };
+      writeStore(payload);
+      emitUpdate();
+      return true;
+    },
+
     reset() {
       writeStore({ scores: {}, sessions: [] });
       emitUpdate();

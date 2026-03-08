@@ -23,7 +23,7 @@ window.COMPLETER_DATA = [
     text: 'J’écris mon ___ complète avec la rue et le numéro.',
     answer: 'adresse',
     choices: ['adresse', 'signature', 'photo', 'question'],
-    hint: 'C’est l’endroit où tu habites.'
+    hint: 'C’est l’endroit où vous habitez.'
   },
 
   {

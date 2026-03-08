@@ -82,6 +82,8 @@ function loadExerciseConfig() {
 
 function checkExerciseConfig(config) {
   const orderedPages = Array.isArray(config.orderedPages) ? config.orderedPages : [];
+  const nonOrderedPages = Array.isArray(config.nonOrderedPages) ? config.nonOrderedPages : [];
+  const nonOrderedSet = new Set(nonOrderedPages);
   const meta = config.meta && typeof config.meta === 'object' ? config.meta : {};
   const bonus = Array.isArray(config.bonusExercises) ? config.bonusExercises : [];
   const xpByPage = config.xpRules && config.xpRules.byPage ? config.xpRules.byPage : {};
@@ -101,7 +103,9 @@ function checkExerciseConfig(config) {
   }
 
   for (const page of Object.keys(meta)) {
-    if (!orderedPages.includes(page)) addWarning(`Meta non referencee dans orderedPages: "${page}".`);
+    if (!orderedPages.includes(page) && !nonOrderedSet.has(page)) {
+      addWarning(`Meta non referencee dans orderedPages: "${page}".`);
+    }
   }
 
   for (const page of orderedPages) {
