@@ -9,7 +9,7 @@
     { page: 'cours-joindre-fichiers', name: 'Cours: Joindre des fichiers', icon: '📎', cat: 'Cours' },
     { page: 'cours-revision-semaine', name: 'Cours: Révision semaine', icon: '📚', cat: 'Cours' },
     { page: 'formulaire', name: 'Formulaire', icon: '📝', cat: 'Candidature' },
-    { page: 'email-ecrire', name: 'Ecrire un e-mail', icon: '✉️', cat: 'Communication' },
+    { page: 'email-ecrire', name: 'Écrire un e-mail', icon: '✉️', cat: 'Communication' },
     { page: 'email-pro', name: 'E-mails professionnels', icon: '📧', cat: 'Communication' },
     { page: 'fenetres-web', name: 'Fenêtres internet', icon: '🪟', cat: 'Navigation' },
     { page: 'dossiers-explorateur', name: 'Explorateur de dossiers', icon: '📁', cat: 'Navigation' },

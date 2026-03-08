@@ -129,7 +129,7 @@ function answer(selectedIndex) {
     allButtons[selectedIndex].classList.add('wrong');
     if (allButtons[current.answer]) allButtons[current.answer].classList.add('correct');
     recordExerciseProgress(PAGE_ID, { correct: 0, typed: 1, errors: 1, xp: 0 });
-    showFeedback(false, current.responses[selectedIndex].reasonIfWrong || 'Cette reponse n est pas adaptee.');
+    showFeedback(false, current.responses[selectedIndex].reasonIfWrong || 'Cette réponse n’est pas adaptée.');
   }
 
   const nextBtn = document.getElementById('btnNext');
@@ -141,7 +141,7 @@ function answer(selectedIndex) {
 function showFeedback(isCorrect, message) {
   const feedback = document.getElementById('mailFeedback');
   feedback.className = 'mail-feedback ' + (isCorrect ? 'ok' : 'err');
-  feedback.textContent = (isCorrect ? '✅ Reponse correcte. ' : '❌ Reponse incorrecte. ') + message;
+  feedback.textContent = (isCorrect ? '✅ Réponse correcte. ' : '❌ Réponse incorrecte. ') + message;
 }
 
 function nextEmail() {
@@ -164,22 +164,22 @@ function finishSession() {
 
   const accuracy = calcAccuracy(session.correct, session.typed);
   let emoji = '📘';
-  let title = 'Continuez a vous entrainer';
+  let title = 'Continuez à vous entraîner';
   if (accuracy >= 90) {
     emoji = '🏆';
-    title = 'Excellent resultat';
+    title = 'Excellent résultat';
   } else if (accuracy >= 70) {
     emoji = '👍';
-    title = 'Tres bon travail';
+    title = 'Très bon travail';
   } else if (accuracy >= 50) {
     emoji = '📈';
-    title = 'Bon debut';
+    title = 'Bon début';
   }
 
   document.getElementById('resEmoji').textContent = emoji;
   document.getElementById('resTitle').textContent = title;
   document.getElementById('resSubtitle').textContent =
-    session.correct + ' bonne(s) reponse(s) sur ' + session.items.length + ' e-mails.';
+    session.correct + ' bonne(s) réponse(s) sur ' + session.items.length + ' e-mails.';
   document.getElementById('resCorrect').textContent = session.correct;
   document.getElementById('resErrors').textContent = session.errors;
   document.getElementById('resXP').textContent = session.xp;
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnNext').addEventListener('click', nextEmail);
   document.getElementById('btnRestart').addEventListener('click', startSession);
 
-  // Raccourcis clavier : 1-4 pour choisir, Entree pour passer au prochain e-mail.
+  // Raccourcis clavier : 1-4 pour choisir, Entrée pour passer au prochain e-mail.
   document.addEventListener('keydown', e => {
     if (e.target && e.target.tagName === 'INPUT') return;
     const map = { '1': 0, '2': 1, '3': 2, '4': 3 };

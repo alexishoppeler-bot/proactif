@@ -107,7 +107,7 @@ function answer(idx) {
 function showFeedback(ok, text) {
   const feedback = document.getElementById('mailFeedback');
   feedback.className = 'mail-feedback ' + (ok ? 'ok' : 'err');
-  feedback.textContent = (ok ? '✅ Reponse correcte. ' : '❌ Reponse incorrecte. ') + text;
+  feedback.textContent = (ok ? '✅ Réponse correcte. ' : '❌ Réponse incorrecte. ') + text;
 }
 
 function nextCase() {
@@ -125,8 +125,8 @@ function finish() {
 
   const accuracy = calcAccuracy(session.correct, session.typed);
   document.getElementById('resEmoji').textContent = accuracy >= 80 ? '🏆' : '✉️';
-  document.getElementById('resTitle').textContent = accuracy >= 80 ? 'Tres bon travail' : 'Continuez';
-  document.getElementById('resSubtitle').textContent = `${session.correct} bonne(s) reponse(s) sur ${session.items.length} situations.`;
+  document.getElementById('resTitle').textContent = accuracy >= 80 ? 'Très bon travail' : 'Continuez';
+  document.getElementById('resSubtitle').textContent = `${session.correct} bonne(s) réponse(s) sur ${session.items.length} situations.`;
   document.getElementById('resCorrect').textContent = session.correct;
   document.getElementById('resErrors').textContent = session.errors;
   document.getElementById('resXP').textContent = session.xp;

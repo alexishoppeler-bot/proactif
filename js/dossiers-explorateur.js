@@ -528,9 +528,9 @@
 
       if (!getMission()) {
         promoteExerciseStatus(PAGE_ID, 'completed');
-        showFeedback('ok', 'Mission reussie. Toutes les missions sont terminees.');
+        showFeedback('ok', 'Mission réussie. Toutes les missions sont terminées.');
       } else {
-        showFeedback('ok', 'Mission reussie. ' + mission.title + ' validee.');
+        showFeedback('ok', 'Mission réussie. ' + mission.title + ' validée.');
       }
       saveProgress();
       renderAll();
@@ -1024,7 +1024,7 @@
     });
 
     dom.btnReset.addEventListener('click', () => {
-      if (!confirm('Reinitialiser le jeu et la progression ?')) return;
+      if (!confirm('Réinitialiser le jeu et la progression ?')) return;
       resetAll();
     });
 
@@ -1199,5 +1199,4 @@
     showFeedback('ok', 'Mission en cours. Suivez les consignes en haut.');
   });
 })();
-
 

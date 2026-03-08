@@ -59,8 +59,8 @@ window.DOSSIERS_EXPLORATEUR_DATA = {
   missions: [
     {
       id: 'm1',
-      title: 'Mission 1: Creer un dossier',
-      instruction: 'Dans Documents, creez un dossier nomme ORP.',
+      title: 'Mission 1: Créer un dossier',
+      instruction: 'Dans Documents, créez un dossier nommé ORP.',
       hint: 'Ouvrez Documents, puis bouton "Nouveau dossier".',
       check: {
         type: 'folder_exists',
@@ -82,8 +82,8 @@ window.DOSSIERS_EXPLORATEUR_DATA = {
     {
       id: 'm3',
       title: 'Mission 3: Sous-dossier',
-      instruction: 'Dans Documents > ORP, creez un sous-dossier nomme Dossier_2026.',
-      hint: 'Entrez dans ORP puis creez le dossier.',
+      instruction: 'Dans Documents > ORP, créez un sous-dossier nommé Dossier_2026.',
+      hint: 'Entrez dans ORP puis créez le dossier.',
       check: {
         type: 'folder_exists',
         parentPath: ['Documents', 'ORP'],

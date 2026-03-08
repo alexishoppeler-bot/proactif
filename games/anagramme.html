@@ -206,7 +206,7 @@
   /* ===== INIT SESSION ===== */
   function startSession() {
     if (!ROUNDS) {
-      showToast('Aucun mot disponible dans les donnees.', 'error');
+      showToast('Aucun mot disponible dans les données.', 'error');
       return;
     }
 
@@ -415,7 +415,7 @@
 
   /* ===== EVENTS ===== */
   document.addEventListener('DOMContentLoaded', () => {
-    // Bouton "Exercice suivant recommande"
+    // Bouton "Exercice suivant recommandé"
     const btnNextEx = document.getElementById('btnNextExercise');
     const nextEx = getNextExercise(PAGE_ID);
     if (nextEx && nextEx.name && nextEx.href) {

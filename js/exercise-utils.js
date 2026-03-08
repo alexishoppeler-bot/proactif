@@ -391,7 +391,7 @@ function recordExerciseProgress(page, delta) {
 }
 
 /**
- * Enregistrer un snapshot complet (ecrase les donnees)
+ * Enregistrer un snapshot complet (écrase les données)
  * @param {string} page
  * @param {object} data - {correct, typed, errors, xp, status}
  */
@@ -412,7 +412,7 @@ function promoteExerciseStatus(page, status) {
 }
 
 /**
- * Demarrer explicitement une session d'exercice
+ * Démarrer explicitement une session d'exercice
  * @param {string} page
  */
 function startExerciseSession(page) {
@@ -444,7 +444,7 @@ function endExerciseSession(page) {
 }
 
 /**
- * Calculer la precision (en %)
+ * Calculer la précision (en %)
  * @param {number} correct
  * @param {number} typed
  * @returns {number}
@@ -455,7 +455,7 @@ function calcAccuracy(correct, typed) {
 }
 
 /**
- * Calculer les XP gagnes pour un exercice (formule simple)
+ * Calculer les XP gagnés pour un exercice (formule simple)
  * 1 correct = 1 XP, bonus si accuracy > 80%
  * @param {number} correct
  * @param {number} typed
@@ -468,7 +468,7 @@ function calcXP(correct, typed) {
 }
 
 /**
- * Creer un effet de confetti (succes)
+ * Créer un effet de confetti (succès)
  */
 function launchConfetti() {
   const colors = ['#4f8ef7','#7c5ff5','#34d399','#f59e0b','#f87171'];
@@ -519,15 +519,15 @@ function showToast(msg, type = 'info') {
 }
 
 /**
- * Les regles XP sont desormais centralisees sur games/regles.html.
- * Cette fonction reste en no-op pour compatibilite avec les pages existantes.
+ * Les règles XP sont désormais centralisées sur games/regles.html.
+ * Cette fonction reste en no-op pour compatibilité avec les pages existantes.
  */
 function showXPRules() {
   return;
 }
 
 /**
- * Obtenir l'exercice suivant recommande dans le parcours pedagogique
+ * Obtenir l'exercice suivant recommandé dans le parcours pédagogique
  * @param {string} currentPage - page actuelle (ex: 'clavier')
  * @returns {object} {name: string, href: string} ou {name: null, href: null} si fin du cycle
  */
@@ -550,7 +550,7 @@ function getNextExercise(currentPage) {
 }
 
 /**
- * Obtenir l'exercice precedent dans le parcours pedagogique
+ * Obtenir l'exercice précédent dans le parcours pédagogique
  * @param {string} currentPage - page actuelle (ex: 'clavier')
  * @returns {object} {name: string, href: string}
  */
