@@ -30,6 +30,6 @@ window.CHERCHE_CLIQUE_DATA = [
   { id: 'send', icon: '📨', label: 'Envoyer', category: 'Actions', difficulty: 'easy' },
   { id: 'lock', icon: '🔒', label: 'Code secret / Protection', category: 'Sécurité', difficulty: 'medium' },
   { id: 'gear', icon: '⚙️', label: 'Paramètres', category: 'Système', difficulty: 'medium' },
-  { id: 'info', icon: 'ℹ️', label: 'Information', category: 'Système', difficulty: 'easy' },
-  { id: 'help', icon: '❓', label: 'Aide', category: 'Système', difficulty: 'easy' }
+  { id: 'info', icon: '📌', label: 'Information', category: 'Système', difficulty: 'easy' },
+  { id: 'help', icon: '🆘', label: 'Aide', category: 'Système', difficulty: 'easy' }
 ];
