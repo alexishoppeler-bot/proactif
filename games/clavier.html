@@ -267,6 +267,10 @@
   const feedbackEl = document.getElementById('feedback-text');
   const wpmEl      = document.getElementById('wpm-live');
 
+  function normalizeApostrophe(ch) {
+    return ch === '’' ? "'" : ch;
+  }
+
   /* ── Shuffle ── */
   function shuffle(arr) {
     const a = [...arr];
@@ -325,6 +329,8 @@
 
   /* ── Highlight key ── */
   function highlightKey(expectedChar) {
+    expectedChar = normalizeApostrophe(expectedChar);
+
     // Déléguer au mapping CH-FR si disponible
     if (window.CH_FR_KEYMAP && expectedChar) {
       window.CH_FR_KEYMAP.highlightKeys(expectedChar);
@@ -370,10 +376,12 @@
 
     const lastChar = typed[typed.length - 1];
     const expected = phrase[inputPos];
+    const typedNormalized = normalizeApostrophe(lastChar);
+    const expectedNormalized = normalizeApostrophe(expected);
 
     totalTyped++;
 
-    if (lastChar === expected) {
+    if (typedNormalized === expectedNormalized) {
       totalCorrect++;
       totalXP++;
       inputPos++;
@@ -385,7 +393,7 @@
 
       // Flash pressed key
       document.querySelectorAll('.key').forEach(k => {
-        if ((k.dataset.key || '').toLowerCase() === lastChar.toLowerCase()) {
+        if ((k.dataset.key || '').toLowerCase() === typedNormalized.toLowerCase()) {
           k.classList.add('pressed');
           setTimeout(() => k.classList.remove('pressed'), 120);
         }
@@ -419,7 +427,7 @@
 
       // Flash error key
       document.querySelectorAll('.key').forEach(k => {
-        if ((k.dataset.key || '').toLowerCase() === lastChar.toLowerCase()) {
+        if ((k.dataset.key || '').toLowerCase() === typedNormalized.toLowerCase()) {
           k.classList.add('error');
           setTimeout(() => k.classList.remove('error'), 200);
         }

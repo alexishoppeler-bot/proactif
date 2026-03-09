@@ -231,6 +231,7 @@ window.CH_FR_KEYMAP = (function () {
     ';':  { sequence: [shift(',', 'Maj + ,')] },
     '!':  { sequence: [shift('´', 'Maj + ´')] },
     "'":  { sequence: [normal("'", "' (apostrophe)")] },
+    '’':  { sequence: [normal("'", "' (apostrophe typographique)")] },
     '<':  { sequence: [normal('<', '<')] },
     '>':  { sequence: [shift('<', 'Maj + <')] },
     '$':  { sequence: [normal('$', '$')] },
