@@ -151,11 +151,24 @@
   function renderGrid() {
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
-    const subset = shuffle(itemOrder).slice(0, 16);
+
+    // S'assurer que la cible est dans la grille
+    const target = itemOrder[targetIndex];
+    let subset = shuffle(itemOrder).slice(0, 15);
+
+    // Ajouter la cible si elle n'est pas déjà dedans
+    if (!subset.some(item => item.id === target.id)) {
+      subset = subset.slice(0, 15);
+      subset.push(target);
+    }
+
+    // Re-shuffle pour position aléatoire
+    subset = shuffle(subset);
+
     subset.forEach((item, idx) => {
       const el = document.createElement('div');
       el.className = 'game-item';
-      el.innerHTML = `<div>${item.icon}</div><div class="game-label">${item.label}</div>`;
+      el.innerHTML = `<div>${item.icon}</div>`;
       el.addEventListener('click', () => handleClick(item, el));
       grid.appendChild(el);
     });

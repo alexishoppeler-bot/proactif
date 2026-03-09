@@ -170,6 +170,8 @@
     typed:    0,
     hintUsed: false,
     answered: false,
+    startTime: 0,
+    totalTime: 0
   };
 
   let xpRulesShown = false;
@@ -218,6 +220,8 @@
     session.typed    = 0;
     session.hintUsed = false;
     session.answered = false;
+    session.startTime = Date.now();
+    session.totalTime = 0;
 
     document.getElementById('resultZone').classList.remove('show');
     document.getElementById('gameZone').classList.remove('hidden');
@@ -298,8 +302,8 @@
     const pool = document.getElementById('lettersPool');
     const poolTile = pool.querySelector(`.letter-tile[data-idx="${poolIdx}"]`);
     if (poolTile) poolTile.classList.remove('used');
-    // Retirer de la réponse
-    answerTiles = answerTiles.filter(t => t !== answerTiles.find(x => x.poolIdx === poolIdx));
+    // Retirer de la réponse (logique clarifiée)
+    answerTiles = answerTiles.filter(t => t.poolIdx !== poolIdx);
     atile.remove();
   }
 
@@ -394,12 +398,21 @@
     document.getElementById('gameZone').classList.add('hidden');
     document.getElementById('resultZone').classList.add('show');
 
+    session.totalTime = Math.round((Date.now() - session.startTime) / 1000);
     const accuracy = calcAccuracy(session.correct, session.typed);
     document.getElementById('resCorrect').textContent  = session.correct;
     document.getElementById('resErrors').textContent   = session.errors;
     document.getElementById('resXP').textContent       = session.xp;
     document.getElementById('resAccuracy').textContent = accuracy + '%';
     updateProgressUI(ROUNDS, ROUNDS);
+
+    // Afficher temps si possible
+    const timeEl = document.querySelector('[id*="resTime"]');
+    if (timeEl) {
+      const mins = Math.floor(session.totalTime / 60);
+      const secs = session.totalTime % 60;
+      timeEl.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    }
 
     if (accuracy === 100) launchConfetti();
   }

@@ -52,6 +52,21 @@
                 <h2 id="formTitle">Formulaire</h2>
                 <p class="form-intro" id="formIntro"></p>
                 <div class="form-fields" id="formFields"></div>
+
+                <div class="form-section-divider"></div>
+                <h3 class="form-section-title">Pièces jointes (📎)</h3>
+                <p class="form-section-hint" id="requiredFilesHint"></p>
+
+                <div class="file-upload-zone" id="fileDropZone">
+                  <div class="file-upload-content">
+                    <div class="file-upload-icon">📁</div>
+                    <p class="file-upload-text">Glissez-déposez vos fichiers ici</p>
+                    <p class="file-upload-subtext">ou cliquez pour parcourir</p>
+                  </div>
+                  <input type="file" id="fileInput" class="file-input-hidden" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
+                </div>
+
+                <div class="uploaded-files-list" id="uploadedFilesList"></div>
               </article>
             </div>
 
